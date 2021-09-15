@@ -1,19 +1,32 @@
+import { ButtonHTMLAttributes, memo, SetStateAction, useCallback } from 'react';
+
 import { Icon } from './Icon';
+import { Genre } from '../types';
 
 import '../styles/button.scss';
-import { ButtonHTMLAttributes } from 'react';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  title: string;
-  iconName: 'action' | 'comedy' | 'documentary' | 'drama' | 'horror' | 'family';
+export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> {
+  genre: Genre;
   selected: boolean;
+  onClick: React.Dispatch<SetStateAction<Genre>>;
 }
 
-export function Button({ iconName, title, selected, ...rest }: ButtonProps) {
+function ButtonComponent({ genre, selected, onClick, ...rest }: ButtonProps) {
+  const handleClick = useCallback(() => onClick(genre), [])
+
   return (
-    <button type="button" {...(selected && { className: 'selected' })} {...rest}>
-      <Icon name={iconName} color={selected ? '#FAE800' : '#FBFBFB'} />
-      {title}
+    <button 
+      type="button" 
+      onClick={handleClick}
+      {...(selected && { className: 'selected' })} 
+      {...rest}
+    >
+      <Icon name={genre.name} color={selected ? '#FAE800' : '#FBFBFB'} />
+      {genre.title}
     </button>
   );
 }
+
+export const Button = memo(ButtonComponent, (prevProps, nextProps) => {
+  return prevProps.selected === nextProps.selected
+})
